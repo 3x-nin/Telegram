@@ -89,14 +89,18 @@ import me.vkryl.android.animator.FactorAnimator;
 
 public class MainTabsActivity extends ViewPagerActivity implements NotificationCenter.NotificationCenterDelegate, FactorAnimator.Target {
 
-    public static final int TABS_COUNT = 4;
-    private static final int POSITION_CHATS = 0;
-    private static final int POSITION_CONTACTS = 1;
+    // Unofficial client (myclient): iOS tab order (DESIGN_SPEC.md section 7): Contacts, Chats, Settings.
+    // The Calls and Profile tabs are still created but hidden. Recent calls open from Settings and from
+    // the Contacts tab menu; other accounts are listed in Settings. Set to false for the upstream layout.
+    private static final boolean MYCLIENT_IOS_TABS = true;
+    public static final int TABS_COUNT = MYCLIENT_IOS_TABS ? 3 : 4;
+    private static final int POSITION_CHATS = MYCLIENT_IOS_TABS ? 1 : 0;
+    private static final int POSITION_CONTACTS = MYCLIENT_IOS_TABS ? 0 : 1;
     private static final int POSITION_CALLS_OR_SETTINGS = 2;
     private static final int POSITION_PROFILE = 3;
 
-    private static final int INDEX_CHATS = 0;
-    private static final int INDEX_CONTACTS = 1;
+    private static final int INDEX_CHATS = MYCLIENT_IOS_TABS ? 1 : 0;
+    private static final int INDEX_CONTACTS = MYCLIENT_IOS_TABS ? 0 : 1;
     private static final int INDEX_SETTINGS = 2;
     private static final int INDEX_CALLS = 3;
     private static final int INDEX_PROFILE = 4;
@@ -351,6 +355,9 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             tabsView.setViewVisible(view, true, false);
         }
         checkUi_callTabVisible(getUserConfig().showCallsTab, false);
+        if (MYCLIENT_IOS_TABS) {
+            tabsView.setViewVisible(tabs[INDEX_PROFILE], false, false); // unofficial client: iOS has no Profile tab
+        }
 
         selectTab(viewPager.getCurrentPosition(), false);
 
@@ -813,7 +820,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
             args.putBoolean("hasMainTabs", true);
             return new ContactsActivity(args);
         } else if (position == POSITION_CALLS_OR_SETTINGS) {
-            if (getUserConfig().showCallsTab) {
+            if (!MYCLIENT_IOS_TABS && getUserConfig().showCallsTab) {
                 Bundle args = new Bundle();
                 args.putBoolean("needFinishFragment", false);
                 args.putBoolean("hasMainTabs", true);
@@ -1087,8 +1094,8 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
 
     private void checkUi_callTabVisible(boolean callTabsVisible, boolean animated) {
         if (tabsView != null) {
-            tabsView.setViewVisible(tabs[INDEX_SETTINGS], !callTabsVisible, animated);
-            tabsView.setViewVisible(tabs[INDEX_CALLS], callTabsVisible, animated);
+            tabsView.setViewVisible(tabs[INDEX_SETTINGS], MYCLIENT_IOS_TABS || !callTabsVisible, animated);
+            tabsView.setViewVisible(tabs[INDEX_CALLS], !MYCLIENT_IOS_TABS && callTabsVisible, animated);
         }
     }
 
@@ -1159,7 +1166,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     private void showAccountChangeHint() {
         if (accountSwitchHintShown) return;
 
-        if (accountSwitchHint == null && HintsController.Hint.AccountSwitchHint.show()) {
+        if (!MYCLIENT_IOS_TABS && accountSwitchHint == null && HintsController.Hint.AccountSwitchHint.show()) {
             AndroidUtilities.runOnUIThread(() -> {
                 if (getContext() == null || tabs == null) return;
 
