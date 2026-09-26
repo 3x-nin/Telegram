@@ -164,6 +164,9 @@ android {
                 abiFilters project.property('myclientAbi').toString()
             }
         }
+        // api_id/api_hash from the git-ignored local.properties (see local.properties.example).
+        buildConfigField "int", "MYCLIENT_API_ID", myclientApiId()
+        buildConfigField "String", "MYCLIENT_API_HASH", "\"" + myclientApiHash() + "\""
     }
 
     buildTypes {
@@ -260,6 +263,35 @@ def getProps(String propName) {
         return "";
     }
 }
+// Unofficial client (myclient): reads a value from local.properties, then from the environment.
+def myclientProp(String name) {
+    def value = getProps(name)
+    if (value == null || value.toString().trim().isEmpty()) {
+        value = System.getenv(name)
+    }
+    return value == null ? null : value.toString().trim()
+}
+
+// Unofficial client (myclient): your own api_id from https://my.telegram.org/apps.
+def myclientApiId() {
+    def value = myclientProp("MYCLIENT_API_ID")
+    if (value == null || !value.isInteger()) {
+        project.logger.warn("MYCLIENT_API_ID is not set. Add your own api_id to local.properties, or login will fail.")
+        return "0"
+    }
+    return value
+}
+
+// Unofficial client (myclient): your own api_hash from https://my.telegram.org/apps.
+def myclientApiHash() {
+    def value = myclientProp("MYCLIENT_API_HASH")
+    if (value == null || !(value ==~ /[0-9a-fA-F]{32}/)) {
+        project.logger.warn("MYCLIENT_API_HASH is not set or is not 32 hex characters. Add your own api_hash to local.properties, or login will fail.")
+        return ""
+    }
+    return value
+}
+
 apply plugin: 'com.google.gms.google-services'
 
 task checkVisibility {

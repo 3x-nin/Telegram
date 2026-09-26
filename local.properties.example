@@ -1,0 +1,8 @@
+# Unofficial client (myclient) build settings.
+# Copy the lines you need into local.properties in the project root.
+# local.properties is git-ignored: never commit real values.
+#
+# Register your own application at https://my.telegram.org/apps
+# (Telegram API terms, rule 2.1). Do not reuse the api_id of another app.
+MYCLIENT_API_ID=
+MYCLIENT_API_HASH=
