@@ -1,64 +1,109 @@
-# PROGRESS
+# PROGRESS: istylegraph (unofficial Telegram client with an iOS-style UI)
 
-Branch: `myclient/ios-reskin`, from `master` (upstream Telegram for Android 12.10.5).
-App name: **istylegraph**. applicationId: **com.itelegram.unofficial** (debug: `.beta`).
-Last update: 2026-09-26.
+Branch: `myclient/ios-reskin`. Base: upstream DrKLO/Telegram `master` (12.10.5).
+App name: **istylegraph**. Package: `com.itelegram.unofficial` (debug: `.beta`).
+The app uses the real Telegram servers and protocol. tgnet, MTProto and encryption are not changed.
 
-## Status by step
+## Status
 
-| Step | Status |
+| Step | State |
 |---|---|
-| 0. Setup | Done, with open items below. Own api_id/api_hash via local.properties and BuildConfig; new name and applicationId; placeholder Firebase config; own contacts account type; original icons and wordmark; disclosure in Settings and in the intro; app-name guard against server strings. |
-| 1. Analysis | Done: `DESIGN_SPEC.md` (draft for review). |
-| 2. UI changes | Not started. |
-| 3. Chat ID | Done. Builds in CI. Not yet tested on a device. |
-| 4. Verify | arm64 debug build passes in CI up to the Chat ID commit. Branding commits: build running. Compliance pass: see below. |
+| 0. Setup and branding | Done. |
+| 1. iOS analysis | Done: `DESIGN_SPEC.md`. |
+| 2. iOS-style reskin | Partly done: palettes, bubble radii, tab order, push/pop motion, nav title size. See "Not matched". |
+| 3. Chat ID | Done. Needs a device check. |
+| 4. Build, ToS pass, this file | CI builds pass (see below). ToS pass below. |
+
+## Build verification (CI, `assembleAfatDebug`, arm64-v8a, no real credentials)
+
+Each build checks out the branch head, so a build also covers the commits before it.
+
+| Run | Covers | Result |
+|---|---|---|
+| [36228232057](https://github.com/3x-nin/Telegram/actions/runs/36228232057) | Step 0 build and fork switches, Chat ID | Pass |
+| [36240175849](https://github.com/3x-nin/Telegram/actions/runs/36240175849) | Branding (package, icons, wordmark, disclosure) | Pass |
+| [36240337579](https://github.com/3x-nin/Telegram/actions/runs/36240337579) | Bubble corner radii | Pass |
+| [36241956456](https://github.com/3x-nin/Telegram/actions/runs/36241956456) | iOS palettes, tab order | See the run |
+| Next run after 245687a | Push/pop motion, nav titles, logo assets | See the Actions tab |
+
+The APK is attached to each run as the artifact `myclient-debug-arm64`. It has no api_id, so it cannot log in. Build your own with your credentials (below).
+
+## How to build
+
+1. Get your own api_id and api_hash at https://my.telegram.org (API development tools). Do not use the credentials of other apps.
+2. Copy `local.properties.example` to `local.properties` and set `MYCLIENT_API_ID` and `MYCLIENT_API_HASH`. The file is in `.gitignore`. Environment variables with the same names also work.
+3. Run `./gradlew :TMessagesProj_App:assembleAfatDebug -PmyclientAbi=arm64-v8a`. Leave out `-PmyclientAbi` to build all ABIs.
+4. For a release build, use your own keystore.
+5. Push notifications need your own Firebase project. `TMessagesProj_App/google-services.json` is a placeholder.
 
 ## Changed files
 
-| Commit | File | Why |
+Fork code is marked "Unofficial client (myclient)". New Java code is in `org.telegram.myclient`. New resources are in `TMessagesProj_App/src/main/res` when possible, so upstream files stay unchanged.
+
+| Commit | Files | Purpose |
 |---|---|---|
-| `a4263de`, `109fd59` | `.github/workflows/myclient-apply-edits.yml`, `.github/workflows/myclient-build.yml`, `myclient/tools/apply_edits.py`, `myclient/edits/README.md`, `myclient/README.md` | CI tooling: applies queued anchored edits as separate commits, then builds an arm64 debug APK. |
-| `0eb1b57` | `DESIGN_SPEC.md` | iOS values with file:line sources, Android file map, gaps. |
-| `ad8436f` | `TMessagesProj/build.gradle` | Opt-in `-PmyclientAbi=<abi>` to build native code for one ABI (CI speed). |
-| `3f075d5` | `TMessagesProj/build.gradle`, `BuildVars.java`, `local.properties.example` | `APP_ID` / `APP_HASH` come from `MYCLIENT_API_ID` / `MYCLIENT_API_HASH` in the git-ignored local.properties (or environment). Upstream values removed. |
-| `c24f723` | `BuildVars.java` | `CHECK_UPDATES=false`, `SUPPORTS_PASSKEYS=false`, `SAFETYNET_KEY=""`, `PLAYSTORE_APP_URL` points to this fork's releases. |
-| `bdf9f61` | `myclient/ChatIdHelper.java`, `values/strings.xml`, `ProfileActivity.java` | Chat ID row with tap-to-copy (Bot API format). |
-| `fc4ca8d` | `gradle.properties` | `APP_PACKAGE=com.itelegram.unofficial`. |
-| `fc4ca8d` | `TMessagesProj_App/google-services.json` | Placeholder Firebase config for the new package names (no real keys). |
-| `fc4ca8d` | `TMessagesProj_App/src/main/res/values/strings.xml` | `AppName` = istylegraph, `AppNameBeta` = istylegraph Beta. |
-| `fc4ca8d` | `TMessagesProj/build.gradle`, `res/xml/auth.xml`, `res/xml/sync_contacts.xml`, `ContactsController.java` | Contacts sync account type = applicationId base (`MYCLIENT_ACCOUNT_TYPE`, `@string/MyClientAccountType`). |
-| `fc4ca8d` | `BuildVars.java` | `isBetaApp()` checks the `.beta` suffix. |
-| `d348545` | `TMessagesProj_App/src/main/res/` (mipmap-anydpi-v26, mipmap-anydpi, drawable-anydpi, drawable, values) | Original icon (speech bubble, violet): launcher and alternative launcher icons, icon-picker previews, notification icon, account icon, Android 12 splash icon, intro texture. |
-| `d3a72a3` | `TMessagesProj_App/src/main/res/drawable/telegram_logo.xml`, `telegram_logo_2.xml` | "istylegraph" wordmark replaces the Telegram wordmark in the intro, chat list header and stories header. |
-| `b30efeb` | `values/strings.xml`, `SettingsActivity.java`, `IntroActivity.java`, `LocaleController.java`, `myclient/MyClientStrings.java` | Disclosure under the Settings version line; intro page 1 notice; app name always from this build's resources. |
+| a4263de, 109fd59, 48808a7 | `.github/workflows/myclient-apply-edits.yml`, `.github/workflows/myclient-build.yml`, `myclient/tools/apply_edits.py`, `myclient/edits/README.md`, `myclient/README.md` | CI: applies queued anchored edits, one commit per edit, then builds. |
+| 0eb1b57 | `DESIGN_SPEC.md` | iOS design tokens with iOS source references, Android mapping, gaps. |
+| ad8436f | `TMessagesProj/build.gradle` | Optional single-ABI build (`-PmyclientAbi`). |
+| 3f075d5 | `TMessagesProj/build.gradle`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`, `local.properties.example` | api_id and api_hash from `local.properties` or environment. Upstream credentials removed. |
+| c24f723 | `BuildVars.java` | Fork safety: no official update checks, no SafetyNet key, own releases URL, passkeys off. |
+| bdf9f61 | `TMessagesProj/src/main/java/org/telegram/myclient/ChatIdHelper.java` (new), `TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java`, `TMessagesProj/src/main/res/values/strings.xml` | Chat ID row in profiles, tap to copy. |
+| fc4ca8d | `gradle.properties`, `TMessagesProj_App/google-services.json`, `TMessagesProj_App/src/main/res/values/strings.xml` (new), `TMessagesProj/build.gradle`, `TMessagesProj/src/main/res/xml/auth.xml`, `TMessagesProj/src/main/res/xml/sync_contacts.xml`, `TMessagesProj/src/main/java/org/telegram/messenger/ContactsController.java`, `BuildVars.java` | Package id, app name, account type follows the package. |
+| d348545 | `TMessagesProj_App/src/main/res/`: `values/myclient_colors.xml`, `drawable/myclient_icon_foreground.xml`, `mipmap-anydpi-v26/` and `mipmap-anydpi/` (`ic_launcher`, `ic_launcher_round`, `icon_2..6_launcher`, `icon_2..6_launcher_round`, `icon_foreground`, `icon_*_foreground_sa`), `drawable-anydpi/notification.xml`, `drawable-anydpi/ic_launcher_dr.xml`, `drawable/tg_splash_320.xml`, `drawable-anydpi/intro_tg_plane.xml` | Original launcher, notification, splash and intro icons. |
+| d3a72a3 | `TMessagesProj_App/src/main/res/drawable/telegram_logo.xml`, `drawable/telegram_logo_2.xml` | "istylegraph" wordmark (placeholder art). |
+| b30efeb | `TMessagesProj/src/main/res/values/strings.xml`, `ui/SettingsActivity.java`, `ui/IntroActivity.java`, `myclient/MyClientStrings.java` (new), `messenger/LocaleController.java` | Unofficial disclosure in Settings, intro text, app name kept over cloud language packs. |
+| 3bb8eab | `messenger/SharedConfig.java`, `ui/ActionBar/MessageDrawable.java`, `ui/ThemeActivity.java` | iOS bubble radii: 16 main, 8 grouped side. |
+| 752b1db | `TMessagesProj/src/main/assets/ios_day.attheme` (new), `TMessagesProj/src/main/assets/ios_night.attheme` (new), `ui/ActionBar/Theme.java` | iOS Day and iOS Night themes, defaults on first launch. |
+| 8a99b7c | `ui/MainTabsActivity.java`, `ui/SettingsActivity.java` | Tabs: Contacts, Chats, Settings. "Recent Calls" row in Settings. |
+| a30332d | `ui/Components/CubicBezierInterpolator.java`, `ui/ActionBar/ActionBarLayout.java`, `ui/ActionBar/ActionBar.java` | Full-width push/pop slide with the iOS curve, 17sp nav titles. |
+| 245687a | `TMessagesProj_App/src/main/res/raw/plane_logo_plain.json`, `raw/qr_code_logo.json`, `raw/qr_logo.svg`, `drawable-anydpi/logo_middle.xml` | Original art for the QR logos, round-video watermark and Terms of Service dialog. |
 
-Queue commits (`e60f244`, `105c91e`) only add `myclient/edits/*.edit` files. The applying commits remove them again.
+Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 
-## Compliance pass (Telegram API terms and your Step 4 list)
+## Decisions
 
-| Item | Status |
+- Themes: two new built-in themes ("iOS Day", "iOS Night") instead of changes to the upstream themes. They are copies of the upstream Blue and Night palettes with the iOS values appended, so keys that iOS does not define keep working values. They have no accent options. Saved theme choices are kept.
+- Tabs: iOS order Contacts, Chats, Settings, with Chats selected at start. The Calls and Profile tabs are hidden, not deleted, so upstream code around them keeps working. `MYCLIENT_IOS_TABS` in `MainTabsActivity` restores the upstream layout.
+- Motion: only the standard push/pop changed. Swipe-back already moves the full screen. Preview (long-press) animations are unchanged.
+- Large titles: not used, because iOS Telegram turns them off (`NavigationController.swift:1505`).
+
+## Telegram API ToS pass (core.telegram.org/api/terms)
+
+| Rule | State |
 |---|---|
-| Own api_id / api_hash, not committed | Wired through local.properties. No values in the repo. You must register your own at https://my.telegram.org/apps. Do not use `2040` (Telegram Desktop). |
-| App title without "Telegram" (rule 2.3) | "istylegraph". |
-| No official logo (rule 2.4) | Launcher, alternative icons, notification, account, splash, intro plane and wordmarks replaced. Still open: the `plane_logo_plain` Lottie (QR code screen, round-video overlay). |
-| API use shown in the intro (rule 2.2) | Intro page 1 says the app uses the Telegram API and is not affiliated with Telegram. Add the same text to any store description. |
-| Disclosure in Settings | Under the version line at the bottom of Settings (there is no separate About screen). |
+| Own api_id and api_hash | Read from `local.properties` or environment. None are committed. Upstream values removed. |
+| No "Telegram" in the app title | Title is "istylegraph". The disclosure says the app is unofficial. |
+| No official logo | Launcher icons, notification icon, splash, intro texture, wordmarks, QR logos, round-video watermark and the Terms of Service logo are replaced with original art. |
+| Tell users the app is unofficial | Text under the version in Settings. Intro page 1 also says it. |
+| Security | No change to tgnet, MTProto or encryption. |
 
-## Not changed on purpose
+Open ToS points:
 
-- tgnet/MTProto, encryption and secret-chat code: untouched.
-- `GOOGLE_AUTH_CLIENT_ID`, `getSmsHash()`, Huawei fields: left as upstream. Google sign-in and SMS auto-fill need your own values for the new package.
-- `TMessagesProj_AppHockeyApp`, `TMessagesProj_AppStandalone`, `TMessagesProj_AppHuawei`: not updated. Their google-services.json files do not know the new package, so only `TMessagesProj_App` builds.
+- The package id `com.itelegram.unofficial` contains "telegram". It is not the title, but app stores can reject it. Consider a package id without "telegram" before you publish.
+- The send button still uses the upstream paper-plane glyph. It is a send icon, not the logo, but iOS uses an arrow.
 
-## Open items and risks
+## Not matched to iOS (flagged, not guessed)
 
-- **Push notifications:** the Firebase config is a placeholder, so FCM token requests fail. Telegram's servers most likely send FCM pushes only through Telegram's own Firebase project, so even your own Firebase project may not receive them. Use Settings > Notifications > keep-alive service / background connection.
-- **Plane animation:** `res/raw/plane_logo_plain.json` (QR code screen, round-video overlay) still shows the Telegram plane. Needs an original Lottie file.
-- **Wordmark:** the "istylegraph" wordmark is a hand-drawn placeholder. Replace it with a designed asset.
-- **Intro animation:** page 1 draws the chat-bubble texture where the plane was. It may look stretched; check on a device.
-- **Other in-app text:** strings such as "Telegram Premium" or "Telegram FAQ" name the Telegram service and are left as they are.
-- **Chat ID:** secret chats show the other user's id (the Bot API has no secret chats). The label is "Chat ID" for every peer type. Only English text exists; other languages fall back to English (to verify). Tap copies; the long-press menu is unchanged.
-- **Build coverage:** CI builds arm64-v8a debug only. Release, other ABIs and other app modules are not checked.
-- **Not readable:** `ChatActivity.java`, `ChatMessageCell.java` and `PhotoViewer.java` are too large for code search. Bubble tail and padding, timestamp and reply layout, and the media viewer cannot be matched to iOS for now.
-- **Design gaps:** see `DESIGN_SPEC.md`, section 14.
+1. Chat background: the iOS pattern wallpaper is not reproduced. Day uses a #A2D7F5 to #ABC8E0 gradient (the gradient end comes from the upstream Blue theme). Night uses solid black.
+2. iOS Night uses white as the accent. Android draws white text on accent buttons in many places, so iOS Night keeps the Android Night accent for buttons and links.
+3. In iOS Night, chat list rows are black and settings cells are #1C1C1D. Android uses one color key for both, so both are #1C1C1D.
+4. Tabs: iOS can show an optional Calls tab. Here, Calls is not a tab. Recent calls open from Settings and from the Contacts tab menu. The "show calls tab" option has no effect.
+5. Tabs: the Profile tab and its long-press account switcher are gone. Accounts are listed in Settings.
+6. Push/pop duration is 350 ms, the UIKit default. The value was not found in the iOS code (DESIGN_SPEC gap). The iOS parallax shift and dimming of the screen below are not added.
+7. Nav titles are 17sp but stay left-aligned. iOS centers them. `ActionBar.centerTitle()` exists but is not turned on for all screens, because of layout risk with menus and subtitles.
+8. Sheet corner radius (iOS 10, glass 38) is not changed. Most sheets use the 9-patch `sheet_shadow_round`.
+9. DESIGN_SPEC gaps, not changed: bubble tail shape, reply bar, timestamp weight, input field metrics, row heights, nav bar height, tab icon sizes, list corner radius.
+10. `ChatActivity.java`, `Cells/ChatMessageCell.java` and `PhotoViewer.java` could not be read with the tools used, so there are no chat-screen or media-viewer layout changes.
+11. SF Pro is not bundled (Apple license). The app uses Roboto.
+12. Other app modules (Standalone, Huawei, HockeyApp) are not updated for the new package. Only `TMessagesProj_App` (afat) is supported.
+
+## Check on a device
+
+The CI build compiles the code but does not run it. Check these on a device:
+
+- Chat ID: correct values for a user, a basic group (`-id`), a supergroup and a channel (`-100...`). Tap copies the value.
+- Launcher icons (default and alternate), notification icon, splash, intro animation, wordmark in the chat list header.
+- Themes: first launch uses iOS Day, and night mode uses iOS Night. Check action bar icons, folder tabs, the search field and the chat input on both.
+- Tabs: Contacts, Chats, Settings. Swipe between pages. Back returns to Chats. "Recent Calls" in Settings opens the call list.
+- Push/pop: full-width slide. Look for screens with a transparent background.
+- QR screens, QR bottom sheets, round-video watermark, Terms of Service dialog, update-required screen.
