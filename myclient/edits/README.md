@@ -24,7 +24,8 @@ keep the diff small and exact.
 | `insert_after_line` | Inserts `text` after the line where the anchor ends. |
 | `replace_line` | Replaces the whole line(s) that the anchor spans with `text`. |
 | `replace` | Replaces only the matched span with the `replace` section. |
-| `create` | Creates a new file from `text` (no `find` section). |
+| `create` | Creates a new file from `text` (no `find` section). Fails if the file exists. |
+| `overwrite` | Replaces the whole content of an existing file with `text`. |
 
 Anchor rules:
 

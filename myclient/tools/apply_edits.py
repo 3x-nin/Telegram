@@ -20,7 +20,8 @@ from pathlib import Path
 
 EDITS_DIR = Path("myclient/edits")
 MARKER = ">>> "
-OPS = ("insert_before_line", "insert_after_line", "replace_line", "replace", "create")
+OPS = ("insert_before_line", "insert_after_line", "replace_line", "replace", "create", "overwrite")
+WHOLE_FILE_OPS = ("create", "overwrite")
 SECTIONS = ("find", "text", "replace")
 WORD_CHAR = "[A-Za-z0-9_$]"
 
@@ -159,9 +160,12 @@ def process(edit_file):
     for number, edit in enumerate(edits, 1):
         path = edit["file"]
         try:
-            if edit["op"] == "create":
-                if path in contents or Path(path).exists():
+            if edit["op"] in WHOLE_FILE_OPS:
+                exists = path in contents or Path(path).exists()
+                if edit["op"] == "create" and exists:
                     raise EditError("file already exists")
+                if edit["op"] == "overwrite" and not exists:
+                    raise EditError("file not found")
                 if "text" not in edit:
                     raise EditError("missing 'text' section")
                 contents[path] = edit["text"]
