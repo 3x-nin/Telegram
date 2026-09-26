@@ -25,7 +25,7 @@ Each build checks out the branch head, so a build also covers the commits before
 | [36240337579](https://github.com/3x-nin/Telegram/actions/runs/36240337579) | Bubble corner radii | Pass |
 | [36241956456](https://github.com/3x-nin/Telegram/actions/runs/36241956456) | iOS palettes, tab order | Pass |
 | [36242521149](https://github.com/3x-nin/Telegram/actions/runs/36242521149) | Push/pop motion, nav titles, logo assets | Pass |
-| [36249100386](https://github.com/3x-nin/Telegram/actions/runs/36249100386) | Calls-tab options, send arrow | See the run |
+| [36249100386](https://github.com/3x-nin/Telegram/actions/runs/36249100386) | Calls-tab options, send arrow | Pass |
 | [36249576169](https://github.com/3x-nin/Telegram/actions/runs/36249576169) | Package id `com.istylegraph.app` | See the run |
 
 The APK is attached to each run as the artifact `myclient-debug-arm64`. It has no api_id, so it cannot log in. Build your own with your credentials (below).
@@ -70,7 +70,7 @@ Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 - Themes: two new built-in themes ("iOS Day", "iOS Night") instead of changes to the upstream themes. They are copies of the upstream Blue and Night palettes with the iOS values appended, so keys that iOS does not define keep working values. They have no accent options. Saved theme choices are kept.
 - Tabs: iOS order Contacts, Chats, Settings, with Chats selected at start. The Calls and Profile tabs are hidden, not deleted, so upstream code around them keeps working. `MYCLIENT_IOS_TABS` in `MainTabsActivity` restores the upstream layout.
 - Motion: only the standard push/pop changed. Swipe-back already moves the full screen. Preview (long-press) animations are unchanged.
-- Send button: only the glyph changed. The new-design send button already draws a filled accent circle with a white icon, as on iOS.
+- Send button: only the glyph changed. The new-design send button already draws a filled accent circle with a white icon, as on iOS, and centers the icon on the circle.
 - Package id: `com.istylegraph.app`. The contacts account type, provider authorities and the generated `MyClientAccountType` string follow `APP_PACKAGE`.
 - Large titles: not used, because iOS Telegram turns them off (`NavigationController.swift:1505`).
 
@@ -111,6 +111,6 @@ The CI build compiles the code but does not run it. Check these on a device:
 - Themes: first launch uses iOS Day, and night mode uses iOS Night. Check action bar icons, folder tabs, the search field and the chat input on both.
 - Tabs: Contacts, Chats, Settings. Swipe between pages. Back returns to Chats. "Recent Calls" in Settings opens the call list, and the call list shows no calls-tab options.
 - Push/pop: full-width slide. Look for screens with a transparent background.
-- Send buttons: the arrow is centered in the circle (the old plane glyph may have had an optical offset).
+- Send buttons: the arrow shows on the chat input, share sheet, attach menu and forward sheet.
 - Contacts sync: the system account appears as istylegraph in Android account settings.
 - QR screens, QR bottom sheets, round-video watermark, Terms of Service dialog, update-required screen.
