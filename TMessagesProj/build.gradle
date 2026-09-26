@@ -167,6 +167,13 @@ android {
         // api_id/api_hash from the git-ignored local.properties (see local.properties.example).
         buildConfigField "int", "MYCLIENT_API_ID", myclientApiId()
         buildConfigField "String", "MYCLIENT_API_HASH", "\"" + myclientApiHash() + "\""
+        // Contacts sync account type follows the applicationId, so it does not clash with the official app.
+        buildConfigField "String", "MYCLIENT_ACCOUNT_TYPE", "\"" + APP_PACKAGE + "\""
+        resValue "string", "MyClientAccountType", APP_PACKAGE
+    }
+
+    buildFeatures {
+        resValues = true // unofficial client (myclient): generated MyClientAccountType string
     }
 
     buildTypes {

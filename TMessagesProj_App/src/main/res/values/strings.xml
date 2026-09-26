@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): app name. Overrides the library strings with the same names. -->
+<resources>
+    <string name="AppName">istylegraph</string>
+    <string name="AppNameBeta">istylegraph Beta</string>
+</resources>
