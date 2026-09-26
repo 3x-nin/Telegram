@@ -12,7 +12,7 @@ keep the diff small and exact.
 ## Format
 
     <commit message: subject line, blank line, body>
-    >>> <op> <path> [count=N]
+    >>> <op> <path> [count=N] [from=<path>]
     >>> find
     <anchor text>
     >>> text
@@ -26,6 +26,8 @@ keep the diff small and exact.
 | `replace` | Replaces only the matched span with the `replace` section. |
 | `create` | Creates a new file from `text` (no `find` section). Fails if the file exists. |
 | `overwrite` | Replaces the whole content of an existing file with `text`. |
+| `copy` | Creates `<path>` as a copy of `from=<path>`. Fails if `<path>` exists. |
+| `append` | Adds `text` at the end of the file. |
 
 Anchor rules:
 

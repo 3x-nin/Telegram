@@ -20,7 +20,8 @@ from pathlib import Path
 
 EDITS_DIR = Path("myclient/edits")
 MARKER = ">>> "
-OPS = ("insert_before_line", "insert_after_line", "replace_line", "replace", "create", "overwrite")
+OPS = ("insert_before_line", "insert_after_line", "replace_line", "replace",
+       "create", "overwrite", "copy", "append")
 WHOLE_FILE_OPS = ("create", "overwrite")
 SECTIONS = ("find", "text", "replace")
 WORD_CHAR = "[A-Za-z0-9_$]"
@@ -43,6 +44,10 @@ def write_text(path, content):
 
 def git(*args):
     subprocess.run(["git"] + list(args), check=True)
+
+
+def newline_of(content):
+    return "\r\n" if "\r\n" in content else "\n"
 
 
 def parse_edit_file(path):
@@ -77,6 +82,8 @@ def parse_edit_file(path):
             for option in words[2:]:
                 if option.startswith("count="):
                     edit["count"] = int(option[len("count="):])
+                elif option.startswith("from="):
+                    edit["from"] = option[len("from="):]
                 else:
                     raise EditError("unknown option %r in %r" % (option, line))
             edits.append(edit)
@@ -149,6 +156,15 @@ def apply_edit(content, edit, newline):
     return content
 
 
+def load(path, contents, newlines):
+    """Load a file into the working set if it is not there yet."""
+    if path not in contents:
+        if not Path(path).is_file():
+            raise EditError("file not found: %s" % path)
+        contents[path] = read_text(path)
+        newlines[path] = newline_of(contents[path])
+
+
 def process(edit_file):
     message, edits = parse_edit_file(edit_file)
     if not message:
@@ -159,26 +175,41 @@ def process(edit_file):
     newlines = {}
     for number, edit in enumerate(edits, 1):
         path = edit["file"]
+        op = edit["op"]
         try:
-            if edit["op"] in WHOLE_FILE_OPS:
-                exists = path in contents or Path(path).exists()
-                if edit["op"] == "create" and exists:
+            exists = path in contents or Path(path).exists()
+            if op in WHOLE_FILE_OPS:
+                if op == "create" and exists:
                     raise EditError("file already exists")
-                if edit["op"] == "overwrite" and not exists:
+                if op == "overwrite" and not exists:
                     raise EditError("file not found")
                 if "text" not in edit:
                     raise EditError("missing 'text' section")
                 contents[path] = edit["text"]
                 newlines[path] = "\n"
                 continue
-            if path not in contents:
-                if not Path(path).is_file():
-                    raise EditError("file not found")
-                contents[path] = read_text(path)
-                newlines[path] = "\r\n" if "\r\n" in contents[path] else "\n"
+            if op == "copy":
+                source = edit.get("from")
+                if not source:
+                    raise EditError("missing from=<path>")
+                if exists:
+                    raise EditError("file already exists")
+                load(source, contents, newlines)
+                contents[path] = contents[source]
+                newlines[path] = newlines[source]
+                continue
+            load(path, contents, newlines)
+            if op == "append":
+                if "text" not in edit:
+                    raise EditError("missing 'text' section")
+                content = contents[path]
+                if content and not content.endswith("\n"):
+                    content += newlines[path]
+                contents[path] = content + as_block(edit["text"], newlines[path])
+                continue
             contents[path] = apply_edit(contents[path], edit, newlines[path])
         except EditError as error:
-            raise EditError("edit %d (%s %s): %s" % (number, edit["op"], path, error))
+            raise EditError("edit %d (%s %s): %s" % (number, op, path, error))
     for path, content in contents.items():
         write_text(Path(path), content)
         git("add", "--", path)
