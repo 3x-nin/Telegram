@@ -92,7 +92,7 @@ public class MainTabsActivity extends ViewPagerActivity implements NotificationC
     // Unofficial client (myclient): iOS tab order (DESIGN_SPEC.md section 7): Contacts, Chats, Settings.
     // The Calls and Profile tabs are still created but hidden. Recent calls open from Settings and from
     // the Contacts tab menu; other accounts are listed in Settings. Set to false for the upstream layout.
-    private static final boolean MYCLIENT_IOS_TABS = true;
+    public static final boolean MYCLIENT_IOS_TABS = true;
     public static final int TABS_COUNT = MYCLIENT_IOS_TABS ? 3 : 4;
     private static final int POSITION_CHATS = MYCLIENT_IOS_TABS ? 1 : 0;
     private static final int POSITION_CONTACTS = MYCLIENT_IOS_TABS ? 0 : 1;
