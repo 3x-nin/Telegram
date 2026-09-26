@@ -1,0 +1,150 @@
+feat(ui): iOS Day and iOS Night palettes as the default themes
+
+DESIGN_SPEC section 1. Adds two built-in themes and makes them the
+defaults on first launch. Saved theme choices of existing installs are
+kept, and all upstream themes stay available in the theme picker.
+
+- ios_day.attheme: a copy of upstream bluebubbles.attheme (Blue theme)
+  with the iOS Classic colors appended: grouped background #EFEFF4, white
+  cells, #C8C7CC separators, #0088FF accent, #E1FFC7 and #FFFFFF bubbles,
+  chat list, input panel and nav bar colors.
+- ios_night.attheme: a copy of upstream night.attheme with the iOS Night
+  colors appended: black background, #1C1C1D cells, #1D1D1D incoming
+  bubbles, #61BCF9 to #0088FF outgoing gradient, chat list and nav bar.
+- Theme.java: registers both themes after the upstream ones, makes them
+  the default day and night themes, and marks them light and dark by name,
+  so isDark() does not need a theme file path (built-in themes have none).
+
+Later keys in a theme file override earlier ones, so the appended iOS
+values win over the upstream base values.
+
+Deviations (listed in PROGRESS.md): the chat background is a solid color
+(#A2D7F5 / #000000) instead of the iOS pattern wallpaper. iOS Night keeps
+Android's accent for buttons and links, because iOS uses white there and
+Android draws white text on accent buttons in many places.
+>>> copy TMessagesProj/src/main/assets/ios_day.attheme from=TMessagesProj/src/main/assets/bluebubbles.attheme
+>>> append TMessagesProj/src/main/assets/ios_day.attheme
+>>> text
+# Unofficial client (myclient): iOS Classic overrides, see DESIGN_SPEC.md section 1
+windowBackgroundGray=#EFEFF4
+windowBackgroundWhite=#FFFFFF
+divider=#C8C7CC
+windowBackgroundWhiteBlackText=#000000
+windowBackgroundWhiteGrayText2=#8E8E93
+windowBackgroundWhiteGrayText3=#8E8E93
+windowBackgroundWhiteBlueHeader=#6D6D72
+windowBackgroundWhiteBlueText=#0088FF
+windowBackgroundWhiteLinkText=#0088FF
+featuredStickers_addButton=#0088FF
+text_RedRegular=#FF3B30
+switchTrackChecked=#35C759
+actionBarDefault=#F7F7F7
+actionBarDefaultTitle=#000000
+actionBarDefaultIcon=#0088FF
+actionBarDefaultSubtitle=#787878
+actionBarTabActiveText=#0088FF
+actionBarTabLine=#0088FF
+actionBarTabUnactiveText=#8E8E93
+chats_name=#000000
+chats_message=#8E8E93
+chats_date=#8E8E93
+chats_unreadCounter=#0088FF
+chats_unreadCounterMuted=#B6B6BB
+chats_unreadCounterText=#FFFFFF
+chats_onlineCircle=#4CC91F
+chats_sentCheck=#0088FF
+chats_sentReadCheck=#0088FF
+chat_wallpaper=#A2D7F5
+chat_inBubble=#FFFFFF
+chat_outBubble=#E1FFC7
+chat_outBubbleGradient=#00000000
+chat_outBubbleGradient2=#00000000
+chat_outBubbleGradient3=#00000000
+chat_messageTextIn=#000000
+chat_messageTextOut=#000000
+chat_messageLinkIn=#004BAD
+chat_messageLinkOut=#004BAD
+chat_inTimeText=#8E8E93
+chat_outTimeText=#CC008C09
+chat_outSentCheck=#19C700
+chat_outSentCheckRead=#19C700
+chat_messagePanelBackground=#F7F7F7
+chat_messagePanelText=#000000
+chat_messagePanelHint=#66000000
+chat_messagePanelSend=#0088FF
+>>> copy TMessagesProj/src/main/assets/ios_night.attheme from=TMessagesProj/src/main/assets/night.attheme
+>>> append TMessagesProj/src/main/assets/ios_night.attheme
+>>> text
+# Unofficial client (myclient): iOS Night overrides, see DESIGN_SPEC.md section 1
+windowBackgroundGray=#000000
+windowBackgroundWhite=#1C1C1D
+divider=#8C545458
+windowBackgroundWhiteBlackText=#FFFFFF
+windowBackgroundWhiteGrayText2=#98989E
+windowBackgroundWhiteGrayText3=#98989E
+windowBackgroundWhiteBlueHeader=#8D8E93
+text_RedRegular=#EB5545
+switchTrackChecked=#67CE67
+actionBarDefault=#1D1D1D
+actionBarDefaultTitle=#FFFFFF
+actionBarDefaultIcon=#FFFFFF
+actionBarDefaultSubtitle=#80FFFFFF
+chats_name=#FFFFFF
+chats_message=#8D8E93
+chats_date=#8D8E93
+chats_unreadCounter=#FFFFFF
+chats_unreadCounterMuted=#666666
+chats_unreadCounterText=#000000
+chats_onlineCircle=#4CC91F
+chat_wallpaper=#000000
+chat_inBubble=#1D1D1D
+chat_outBubble=#61BCF9
+chat_outBubbleGradient=#0088FF
+chat_outBubbleGradient2=#00000000
+chat_outBubbleGradient3=#00000000
+chat_messageTextIn=#FFFFFF
+chat_messageTextOut=#FFFFFF
+chat_inTimeText=#80FFFFFF
+chat_outTimeText=#80FFFFFF
+chat_outSentCheck=#FFFFFF
+chat_outSentCheckRead=#FFFFFF
+chat_messagePanelBackground=#1D1D1D
+chat_messagePanelText=#FFFFFF
+chat_messagePanelHint=#7AFFFFFF
+>>> insert_after_line TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
+>>> find
+themesDict.put("Night", themeInfo);
+>>> text
+
+        // Unofficial client (myclient): iOS-style palettes (DESIGN_SPEC.md section 1). They are the
+        // defaults on first launch; saved theme choices are kept. Assets: ios_day.attheme and
+        // ios_night.attheme (upstream Blue and Night palettes with the iOS values appended).
+        themeInfo = new ThemeInfo();
+        themeInfo.name = "iOS Day";
+        themeInfo.assetName = "ios_day.attheme";
+        themeInfo.previewBackgroundColor = 0xffa2d7f5;
+        themeInfo.previewInColor = 0xffffffff;
+        themeInfo.previewOutColor = 0xffe1ffc7;
+        themeInfo.sortIndex = 6;
+        themes.add(currentDayTheme = defaultTheme = themeInfo);
+        themesDict.put("iOS Day", themeInfo);
+
+        themeInfo = new ThemeInfo();
+        themeInfo.name = "iOS Night";
+        themeInfo.assetName = "ios_night.attheme";
+        themeInfo.previewBackgroundColor = 0xff000000;
+        themeInfo.previewInColor = 0xff1d1d1d;
+        themeInfo.previewOutColor = 0xff61bcf9;
+        themeInfo.sortIndex = 7;
+        themes.add(themeInfo);
+        themesDict.put("iOS Night", currentNightTheme = themeInfo);
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
+>>> find
+if ("Dark Blue".equals(name) || "Night".equals(name)) {
+>>> replace
+if ("Dark Blue".equals(name) || "Night".equals(name) || "iOS Night".equals(name)) {
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
+>>> find
+"Blue".equals(name) || "Arctic Blue".equals(name) || "Day".equals(name)
+>>> replace
+"Blue".equals(name) || "Arctic Blue".equals(name) || "Day".equals(name) || "iOS Day".equals(name)
