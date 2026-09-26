@@ -1,0 +1,90 @@
+feat(brand): Settings disclosure, intro notice and app-name guard
+
+- Settings: the version footer now reads "istylegraph for Android vX"
+  and adds the disclosure "Unofficial client based on the open-source
+  Telegram Android app. Not affiliated with or endorsed by Telegram."
+- Intro: page 1 uses the app name and says that the app uses the
+  Telegram API and is not affiliated with Telegram (API terms, rule 2.2).
+- LocaleController: AppName and AppNameBeta always come from this
+  build's resources (org.telegram.myclient.MyClientStrings). Server
+  language packs and bundled translations can no longer show "Telegram"
+  as the app name.
+>>> insert_after_line TMessagesProj/src/main/res/values/strings.xml
+>>> find
+<string name="MyClientChatIdCopied">Chat ID copied to clipboard.</string>
+>>> text
+    <string name="MyClientVersion">istylegraph for Android %1$s</string>
+    <string name="MyClientDisclosure">Unofficial client based on the open-source Telegram Android app. Not affiliated with or endorsed by Telegram.</string>
+    <string name="MyClientIntroMessage">An unofficial messaging app that uses the Telegram API.\nNot affiliated with or endorsed by Telegram.</string>
+>>> replace_line TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java
+>>> find
+return formatString(R.string.TelegramVersion,
+>>> text
+            return formatString(R.string.MyClientVersion, String.format(Locale.US, "v%s (%d)\n%s", pInfo.versionName, code, abi)) + "\n\n" + getString(R.string.MyClientDisclosure); // unofficial client
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
+>>> find
+LocaleController.getString(R.string.Page1Message),
+>>> replace
+LocaleController.getString(R.string.MyClientIntroMessage),
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/IntroActivity.java
+>>> find
+new SpannableStringBuilder(LocaleController.getString(R.string.Page1Title))
+>>> replace
+new SpannableStringBuilder(LocaleController.getString(R.string.AppName))
+>>> create TMessagesProj/src/main/java/org/telegram/myclient/MyClientStrings.java
+>>> text
+/*
+ * Unofficial client (myclient) layer. Not part of upstream Telegram for Android.
+ * Licensed under GNU GPL v. 2 or later, like the rest of this project.
+ */
+
+package org.telegram.myclient;
+
+import android.content.Context;
+
+import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.R;
+
+/**
+ * Strings that belong to this unofficial build. LocaleController asks this class first, so
+ * Telegram's server language packs and the bundled translations cannot bring back "Telegram"
+ * as the app name.
+ */
+public final class MyClientStrings {
+
+    private MyClientStrings() {
+    }
+
+    /**
+     * @return this build's own value for the string, or null if the string is not owned by the fork
+     */
+    public static String forkOwned(String key, int stringRes) {
+        final int res;
+        if (stringRes == R.string.AppName || "AppName".equals(key)) {
+            res = R.string.AppName;
+        } else if (stringRes == R.string.AppNameBeta || "AppNameBeta".equals(key)) {
+            res = R.string.AppNameBeta;
+        } else {
+            return null;
+        }
+        final Context context = ApplicationLoader.applicationContext;
+        if (context == null) {
+            return null;
+        }
+        try {
+            return context.getResources().getString(res);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+>>> insert_after_line TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java
+>>> find
+private String getStringV2(String key, @StringRes int stringRes, String fallback) {
+>>> text
+        // Unofficial client: the app name always comes from this build's resources,
+        // not from Telegram's server language packs or the bundled translations.
+        final String myclientOwnValue = org.telegram.myclient.MyClientStrings.forkOwned(key, stringRes);
+        if (myclientOwnValue != null) {
+            return myclientOwnValue;
+        }

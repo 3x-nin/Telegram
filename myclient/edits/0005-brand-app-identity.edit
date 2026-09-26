@@ -1,0 +1,133 @@
+build(brand): applicationId com.itelegram.unofficial, app name istylegraph
+
+- gradle.properties: APP_PACKAGE=com.itelegram.unofficial, so the app
+  installs next to the official client (debug adds .beta, standalone .web).
+- TMessagesProj_App/google-services.json: placeholder Firebase config for
+  the new package names. It lets the build pass; FCM tokens will fail
+  until you add your own Firebase project. Telegram's servers most likely
+  send pushes only through Telegram's own Firebase project, so use the
+  background connection for notifications.
+- TMessagesProj_App/src/main/res/values/strings.xml: AppName and
+  AppNameBeta override the library strings (launcher label, account
+  label, notification titles).
+- The contacts sync account type follows APP_PACKAGE (BuildConfig field
+  and generated string), so it no longer clashes with the official app.
+- BuildVars.isBetaApp() checks the ".beta" suffix instead of the
+  official package name.
+>>> replace_line gradle.properties
+>>> find
+APP_PACKAGE=
+>>> text
+APP_PACKAGE=com.itelegram.unofficial
+>>> overwrite TMessagesProj_App/google-services.json
+>>> text
+{
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "myclient-placeholder",
+    "storage_bucket": "myclient-placeholder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000001",
+        "android_client_info": {
+          "package_name": "com.itelegram.unofficial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AMyClientPlaceholderApiKey0000000000000"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000002",
+        "android_client_info": {
+          "package_name": "com.itelegram.unofficial.beta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AMyClientPlaceholderApiKey0000000000000"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000003",
+        "android_client_info": {
+          "package_name": "com.itelegram.unofficial.web"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AMyClientPlaceholderApiKey0000000000000"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+>>> create TMessagesProj_App/src/main/res/values/strings.xml
+>>> text
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): app name. Overrides the library strings with the same names. -->
+<resources>
+    <string name="AppName">istylegraph</string>
+    <string name="AppNameBeta">istylegraph Beta</string>
+</resources>
+>>> insert_after_line TMessagesProj/build.gradle
+>>> find
+buildConfigField "String", "MYCLIENT_API_HASH", "\"" + myclientApiHash() + "\""
+>>> text
+        // Contacts sync account type follows the applicationId, so it does not clash with the official app.
+        buildConfigField "String", "MYCLIENT_ACCOUNT_TYPE", "\"" + APP_PACKAGE + "\""
+        resValue "string", "MyClientAccountType", APP_PACKAGE
+>>> insert_before_line TMessagesProj/build.gradle
+>>> find
+buildTypes {
+>>> text
+    buildFeatures {
+        resValues = true // unofficial client (myclient): generated MyClientAccountType string
+    }
+
+>>> replace TMessagesProj/src/main/res/xml/auth.xml
+>>> find
+android:accountType="org.telegram.messenger"
+>>> replace
+android:accountType="@string/MyClientAccountType"
+>>> replace TMessagesProj/src/main/res/xml/sync_contacts.xml
+>>> find
+android:accountType="org.telegram.messenger"
+>>> replace
+android:accountType="@string/MyClientAccountType"
+>>> replace TMessagesProj/src/main/java/org/telegram/messenger/ContactsController.java count=5
+>>> find
+"org.telegram.messenger"
+>>> replace
+BuildConfig.MYCLIENT_ACCOUNT_TYPE
+>>> replace TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+>>> find
+"org.telegram.messenger.beta".equals(ApplicationLoader.applicationContext.getPackageName())
+>>> replace
+ApplicationLoader.applicationContext.getPackageName().endsWith(".beta")
