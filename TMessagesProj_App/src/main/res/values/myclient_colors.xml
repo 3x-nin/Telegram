@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): colors of the original app icon. -->
+<resources>
+    <color name="myclient_icon_background">#5B3FD9</color>
+    <color name="myclient_icon_foreground">#FFFFFF</color>
+</resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): the intro animation shows the chat bubble texture instead of the Telegram plane. -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/intro_ic_bubble" />

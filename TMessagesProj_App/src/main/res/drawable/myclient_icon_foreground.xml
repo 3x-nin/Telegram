@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): original icon glyph, a speech bubble with three dots. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="@color/myclient_icon_foreground"
+        android:pathData="M44,34H64A14,14 0 0 1 78,48V56A14,14 0 0 1 64,70H44L33,78L35,67A14,14 0 0 1 30,56V48A14,14 0 0 1 44,34ZM38,52A4,4 0 1 0 46,52A4,4 0 1 0 38,52ZM50,52A4,4 0 1 0 58,52A4,4 0 1 0 50,52ZM62,52A4,4 0 1 0 70,52A4,4 0 1 0 62,52Z" />
+</vector>
