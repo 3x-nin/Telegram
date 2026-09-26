@@ -1,0 +1,26 @@
+build(brand): package id com.istylegraph.app
+
+The old id com.itelegram.unofficial contained "telegram", which app
+stores can reject for an unofficial client. The new id has no Telegram
+name in it.
+
+- gradle.properties: APP_PACKAGE=com.istylegraph.app. Debug builds add
+  .beta and standalone builds add .web, as before.
+- TMessagesProj_App/google-services.json: the placeholder Firebase
+  clients use the new package names, so the google-services plugin still
+  finds a matching client for each variant.
+
+The contacts account type, the provider authorities and the generated
+MyClientAccountType string follow APP_PACKAGE, so they change with it.
+An APK built with the old id is a different app: it is not upgraded and
+its data does not move.
+>>> replace_line gradle.properties
+>>> find
+APP_PACKAGE=com.itelegram.unofficial
+>>> text
+APP_PACKAGE=com.istylegraph.app
+>>> replace TMessagesProj_App/google-services.json count=3
+>>> find
+com.itelegram.unofficial
+>>> replace
+com.istylegraph.app
