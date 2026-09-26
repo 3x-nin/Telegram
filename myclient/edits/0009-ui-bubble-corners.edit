@@ -1,0 +1,37 @@
+feat(ui): iOS bubble corner radii (16, grouped side 8)
+
+DESIGN_SPEC section 3: iOS uses a 16pt main corner radius and an 8pt
+radius on the grouped side of consecutive bubbles
+(TelegramUIPreferences/Sources/PresentationThemeSettings.swift:561).
+Android used 17dp and 6dp.
+
+- SharedConfig: default bubbleRadius 16. Users who moved the slider keep
+  their value.
+- MessageDrawable: grouped-side radius 8 instead of 6 (text and media
+  bubbles). The tail geometry (smallRad) is unchanged.
+- ThemeActivity: the reset check uses the new default.
+>>> replace_line TMessagesProj/src/main/java/org/telegram/messenger/SharedConfig.java
+>>> find
+public static int bubbleRadius = 17;
+>>> text
+    public static int bubbleRadius = 16; // unofficial client: iOS main bubble radius (DESIGN_SPEC 3)
+>>> replace TMessagesProj/src/main/java/org/telegram/messenger/SharedConfig.java
+>>> find
+preferences.getInt("bubbleRadius", 17)
+>>> replace
+preferences.getInt("bubbleRadius", 16)
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java count=4
+>>> find
+dp(Math.min(6, SharedConfig.bubbleRadius))
+>>> replace
+dp(Math.min(8, SharedConfig.bubbleRadius))
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/ActionBar/MessageDrawable.java count=2
+>>> find
+nearRad = dp(6);
+>>> replace
+nearRad = dp(8);
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/ThemeActivity.java
+>>> find
+SharedConfig.bubbleRadius != 17
+>>> replace
+SharedConfig.bubbleRadius != 16
