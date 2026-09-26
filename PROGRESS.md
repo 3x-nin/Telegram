@@ -12,11 +12,11 @@ The app uses the real Telegram servers and protocol. tgnet, MTProto and encrypti
 | 1. iOS analysis | Done: `DESIGN_SPEC.md`. |
 | 2. iOS-style reskin | Partly done: palettes, bubble radii, tab order, push/pop motion, nav title size, send arrow. See "Not matched". |
 | 3. Chat ID | Done. Needs a device check. |
-| 4. Build, ToS pass, this file | CI builds pass (see below). ToS pass below. |
+| 4. Build, ToS pass, this file | All CI builds pass (see below). ToS pass below. |
 
 ## Build verification (CI, `assembleAfatDebug`, arm64-v8a, no real credentials)
 
-Each build checks out the branch head, so a build also covers the commits before it.
+Each build checks out the branch head, so a build also covers the commits before it. The last run covers the whole branch.
 
 | Run | Covers | Result |
 |---|---|---|
@@ -26,7 +26,7 @@ Each build checks out the branch head, so a build also covers the commits before
 | [36241956456](https://github.com/3x-nin/Telegram/actions/runs/36241956456) | iOS palettes, tab order | Pass |
 | [36242521149](https://github.com/3x-nin/Telegram/actions/runs/36242521149) | Push/pop motion, nav titles, logo assets | Pass |
 | [36249100386](https://github.com/3x-nin/Telegram/actions/runs/36249100386) | Calls-tab options, send arrow | Pass |
-| [36249576169](https://github.com/3x-nin/Telegram/actions/runs/36249576169) | Package id `com.istylegraph.app` | See the run |
+| [36249576169](https://github.com/3x-nin/Telegram/actions/runs/36249576169) | Package id `com.istylegraph.app` (whole branch) | Pass |
 
 The APK is attached to each run as the artifact `myclient-debug-arm64`. It has no api_id, so it cannot log in. Build your own with your credentials (below).
 
