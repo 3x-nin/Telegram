@@ -1,0 +1,29 @@
+config: turn off services that only work for the official app
+
+- CHECK_UPDATES=false: update checks return the official app's updates.
+- SUPPORTS_PASSKEYS=false: upstream notes that passkeys work only on
+  official app ids.
+- SAFETYNET_KEY="": the upstream key belongs to the official app. An empty
+  key already switches LoginActivity to the path without SafetyNet.
+- PLAYSTORE_APP_URL now points to this fork's releases page, so "update"
+  links do not send users to the official app.
+>>> replace_line TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+>>> find
+public static boolean CHECK_UPDATES =
+>>> text
+    public static boolean CHECK_UPDATES = false; // unofficial client: update checks refer to the official app
+>>> replace_line TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+>>> find
+public static String SAFETYNET_KEY =
+>>> text
+    public static String SAFETYNET_KEY = ""; // unofficial client: the upstream key is bound to the official app
+>>> replace_line TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+>>> find
+public static String PLAYSTORE_APP_URL =
+>>> text
+    public static String PLAYSTORE_APP_URL = "https://github.com/3x-nin/Telegram/releases"; // unofficial client: no Play Store listing
+>>> replace_line TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+>>> find
+public static boolean SUPPORTS_PASSKEYS =
+>>> text
+    public static boolean SUPPORTS_PASSKEYS = false; // unofficial client: works only on official app ids
