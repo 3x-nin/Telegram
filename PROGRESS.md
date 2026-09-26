@@ -1,7 +1,7 @@
 # PROGRESS: istylegraph (unofficial Telegram client with an iOS-style UI)
 
 Branch: `myclient/ios-reskin`. Base: upstream DrKLO/Telegram `master` (12.10.5).
-App name: **istylegraph**. Package: `com.itelegram.unofficial` (debug: `.beta`).
+App name: **istylegraph**. Package: `com.istylegraph.app` (debug: `.beta`).
 The app uses the real Telegram servers and protocol. tgnet, MTProto and encryption are not changed.
 
 ## Status
@@ -26,6 +26,7 @@ Each build checks out the branch head, so a build also covers the commits before
 | [36241956456](https://github.com/3x-nin/Telegram/actions/runs/36241956456) | iOS palettes, tab order | Pass |
 | [36242521149](https://github.com/3x-nin/Telegram/actions/runs/36242521149) | Push/pop motion, nav titles, logo assets | Pass |
 | [36249100386](https://github.com/3x-nin/Telegram/actions/runs/36249100386) | Calls-tab options, send arrow | See the run |
+| [36249576169](https://github.com/3x-nin/Telegram/actions/runs/36249576169) | Package id `com.istylegraph.app` | See the run |
 
 The APK is attached to each run as the artifact `myclient-debug-arm64`. It has no api_id, so it cannot log in. Build your own with your credentials (below).
 
@@ -49,7 +50,7 @@ Fork code is marked "Unofficial client (myclient)". New Java code is in `org.tel
 | 3f075d5 | `TMessagesProj/build.gradle`, `TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java`, `local.properties.example` | api_id and api_hash from `local.properties` or environment. Upstream credentials removed. |
 | c24f723 | `BuildVars.java` | Fork safety: no official update checks, no SafetyNet key, own releases URL, passkeys off. |
 | bdf9f61 | `TMessagesProj/src/main/java/org/telegram/myclient/ChatIdHelper.java` (new), `TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java`, `TMessagesProj/src/main/res/values/strings.xml` | Chat ID row in profiles, tap to copy. |
-| fc4ca8d | `gradle.properties`, `TMessagesProj_App/google-services.json`, `TMessagesProj_App/src/main/res/values/strings.xml` (new), `TMessagesProj/build.gradle`, `TMessagesProj/src/main/res/xml/auth.xml`, `TMessagesProj/src/main/res/xml/sync_contacts.xml`, `TMessagesProj/src/main/java/org/telegram/messenger/ContactsController.java`, `BuildVars.java` | Package id, app name, account type follows the package. |
+| fc4ca8d | `gradle.properties`, `TMessagesProj_App/google-services.json`, `TMessagesProj_App/src/main/res/values/strings.xml` (new), `TMessagesProj/build.gradle`, `TMessagesProj/src/main/res/xml/auth.xml`, `TMessagesProj/src/main/res/xml/sync_contacts.xml`, `TMessagesProj/src/main/java/org/telegram/messenger/ContactsController.java`, `BuildVars.java` | First package id (`com.itelegram.unofficial`, replaced in d10b8ee), app name, account type follows the package. |
 | d348545 | `TMessagesProj_App/src/main/res/`: `values/myclient_colors.xml`, `drawable/myclient_icon_foreground.xml`, `mipmap-anydpi-v26/` and `mipmap-anydpi/` (`ic_launcher`, `ic_launcher_round`, `icon_2..6_launcher`, `icon_2..6_launcher_round`, `icon_foreground`, `icon_*_foreground_sa`), `drawable-anydpi/notification.xml`, `drawable-anydpi/ic_launcher_dr.xml`, `drawable/tg_splash_320.xml`, `drawable-anydpi/intro_tg_plane.xml` | Original launcher, notification, splash and intro icons. |
 | d3a72a3 | `TMessagesProj_App/src/main/res/drawable/telegram_logo.xml`, `drawable/telegram_logo_2.xml` | "istylegraph" wordmark (placeholder art). |
 | b30efeb | `TMessagesProj/src/main/res/values/strings.xml`, `ui/SettingsActivity.java`, `ui/IntroActivity.java`, `myclient/MyClientStrings.java` (new), `messenger/LocaleController.java` | Unofficial disclosure in Settings, intro text, app name kept over cloud language packs. |
@@ -60,6 +61,7 @@ Fork code is marked "Unofficial client (myclient)". New Java code is in `org.tel
 | 245687a | `TMessagesProj_App/src/main/res/raw/plane_logo_plain.json`, `raw/qr_code_logo.json`, `raw/qr_logo.svg`, `drawable-anydpi/logo_middle.xml` | Original art for the QR logos, round-video watermark and Terms of Service dialog. |
 | c9abe32 | `ui/MainTabsActivity.java`, `ui/CallLogActivity.java` | The call list no longer offers to show or hide the Calls tab. |
 | 186d00b | `TMessagesProj_App/src/main/res/drawable/send_plane_24.xml` | iOS-style up arrow on all send buttons. |
+| d10b8ee | `gradle.properties`, `TMessagesProj_App/google-services.json` | Package id `com.istylegraph.app` (no Telegram name). |
 
 Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 
@@ -69,6 +71,7 @@ Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 - Tabs: iOS order Contacts, Chats, Settings, with Chats selected at start. The Calls and Profile tabs are hidden, not deleted, so upstream code around them keeps working. `MYCLIENT_IOS_TABS` in `MainTabsActivity` restores the upstream layout.
 - Motion: only the standard push/pop changed. Swipe-back already moves the full screen. Preview (long-press) animations are unchanged.
 - Send button: only the glyph changed. The new-design send button already draws a filled accent circle with a white icon, as on iOS.
+- Package id: `com.istylegraph.app`. The contacts account type, provider authorities and the generated `MyClientAccountType` string follow `APP_PACKAGE`.
 - Large titles: not used, because iOS Telegram turns them off (`NavigationController.swift:1505`).
 
 ## Telegram API ToS pass (core.telegram.org/api/terms)
@@ -76,14 +79,12 @@ Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 | Rule | State |
 |---|---|
 | Own api_id and api_hash | Read from `local.properties` or environment. None are committed. Upstream values removed. |
-| No "Telegram" in the app title | Title is "istylegraph". The disclosure says the app is unofficial. |
+| No "Telegram" in the app title | Title is "istylegraph". The package id `com.istylegraph.app` has no Telegram name either. |
 | No official logo | Launcher icons, notification icon, splash, intro texture, wordmarks, QR logos, round-video watermark, the Terms of Service logo and the send glyph are replaced with original art. |
 | Tell users the app is unofficial | Text under the version in Settings. Intro page 1 also says it. |
 | Security | No change to tgnet, MTProto or encryption. |
 
-Open ToS point:
-
-- The package id `com.itelegram.unofficial` contains "telegram". It is not the title, but app stores can reject it. Consider a package id without "telegram" before you publish.
+No open ToS points are known. Check the store listing text and screenshots yourself before you publish.
 
 ## Not matched to iOS (flagged, not guessed)
 
@@ -104,10 +105,12 @@ Open ToS point:
 
 The CI build compiles the code but does not run it. Check these on a device:
 
+- Install: the app installs as `com.istylegraph.app` next to the official app. A test build with the old id `com.itelegram.unofficial` is a separate app; uninstall it.
 - Chat ID: correct values for a user, a basic group (`-id`), a supergroup and a channel (`-100...`). Tap copies the value.
 - Launcher icons (default and alternate), notification icon, splash, intro animation, wordmark in the chat list header.
 - Themes: first launch uses iOS Day, and night mode uses iOS Night. Check action bar icons, folder tabs, the search field and the chat input on both.
 - Tabs: Contacts, Chats, Settings. Swipe between pages. Back returns to Chats. "Recent Calls" in Settings opens the call list, and the call list shows no calls-tab options.
 - Push/pop: full-width slide. Look for screens with a transparent background.
 - Send buttons: the arrow is centered in the circle (the old plane glyph may have had an optical offset).
+- Contacts sync: the system account appears as istylegraph in Android account settings.
 - QR screens, QR bottom sheets, round-video watermark, Terms of Service dialog, update-required screen.
