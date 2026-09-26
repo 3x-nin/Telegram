@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): original istylegraph mark, replaces the Telegram logo on the Terms of Service dialog. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="68dp"
+    android:height="68dp"
+    android:viewportWidth="150"
+    android:viewportHeight="150">
+    <path
+        android:fillColor="#5B3FD9"
+        android:pathData="M75,0a75,75 0,1 1,0 150a75,75 0,1 1,0 -150z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,40 C96,40 113,54.33 113,72 C113,89.67 96,104 75,104 C63.5,104 52.5,112 43,114 L52.9,93.8 C43.5,88 37,80.5 37,72 C37,54.33 54,40 75,40 Z" />
+    <path
+        android:fillColor="#5B3FD9"
+        android:pathData="M59,72m-5.5,0a5.5,5.5 0,1 0,11 0a5.5,5.5 0,1 0,-11 0M75,72m-5.5,0a5.5,5.5 0,1 0,11 0a5.5,5.5 0,1 0,-11 0M91,72m-5.5,0a5.5,5.5 0,1 0,11 0a5.5,5.5 0,1 0,-11 0" />
+</vector>
