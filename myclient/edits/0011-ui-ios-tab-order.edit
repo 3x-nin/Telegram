@@ -1,0 +1,91 @@
+feat(ui): iOS tab order: Contacts, Chats, Settings
+
+DESIGN_SPEC section 7. iOS Telegram shows Contacts, Chats and Settings
+(Calls is an optional extra tab) and has no Profile tab.
+
+- MainTabsActivity: Contacts is the first tab and page, Chats the second,
+  Settings the third. Chats stays selected at start and is still the
+  target of the back button. The Calls and Profile tabs are still
+  created but hidden, so the upstream logic around them keeps working;
+  the pager has 3 pages. The account-switch hint that points at the
+  hidden Profile tab is not shown.
+- SettingsActivity: new "Recent Calls" row (as on iOS), because the
+  Calls tab is gone. Recent calls also stay in the Contacts tab menu.
+  Other accounts are already listed in Settings.
+
+One switch, MYCLIENT_IOS_TABS in MainTabsActivity, turns the upstream
+layout back on.
+>>> replace_line TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+public static final int TABS_COUNT = 4;
+>>> text
+    // Unofficial client (myclient): iOS tab order (DESIGN_SPEC.md section 7): Contacts, Chats, Settings.
+    // The Calls and Profile tabs are still created but hidden. Recent calls open from Settings and from
+    // the Contacts tab menu; other accounts are listed in Settings. Set to false for the upstream layout.
+    private static final boolean MYCLIENT_IOS_TABS = true;
+    public static final int TABS_COUNT = MYCLIENT_IOS_TABS ? 3 : 4;
+>>> replace_line TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+private static final int POSITION_CHATS = 0;
+>>> text
+    private static final int POSITION_CHATS = MYCLIENT_IOS_TABS ? 1 : 0;
+>>> replace_line TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+private static final int POSITION_CONTACTS = 1;
+>>> text
+    private static final int POSITION_CONTACTS = MYCLIENT_IOS_TABS ? 0 : 1;
+>>> replace_line TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+private static final int INDEX_CHATS = 0;
+>>> text
+    private static final int INDEX_CHATS = MYCLIENT_IOS_TABS ? 1 : 0;
+>>> replace_line TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+private static final int INDEX_CONTACTS = 1;
+>>> text
+    private static final int INDEX_CONTACTS = MYCLIENT_IOS_TABS ? 0 : 1;
+>>> insert_after_line TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+checkUi_callTabVisible(getUserConfig().showCallsTab, false);
+>>> text
+        if (MYCLIENT_IOS_TABS) {
+            tabsView.setViewVisible(tabs[INDEX_PROFILE], false, false); // unofficial client: iOS has no Profile tab
+        }
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+tabsView.setViewVisible(tabs[INDEX_SETTINGS], !callTabsVisible, animated);
+>>> replace
+tabsView.setViewVisible(tabs[INDEX_SETTINGS], MYCLIENT_IOS_TABS || !callTabsVisible, animated);
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+tabsView.setViewVisible(tabs[INDEX_CALLS], callTabsVisible, animated);
+>>> replace
+tabsView.setViewVisible(tabs[INDEX_CALLS], !MYCLIENT_IOS_TABS && callTabsVisible, animated);
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+} else if (position == POSITION_CALLS_OR_SETTINGS) {
+            if (getUserConfig().showCallsTab) {
+>>> replace
+} else if (position == POSITION_CALLS_OR_SETTINGS) {
+            if (!MYCLIENT_IOS_TABS && getUserConfig().showCallsTab) {
+>>> replace TMessagesProj/src/main/java/org/telegram/ui/MainTabsActivity.java
+>>> find
+if (accountSwitchHint == null && HintsController.Hint.AccountSwitchHint.show()) {
+>>> replace
+if (!MYCLIENT_IOS_TABS && accountSwitchHint == null && HintsController.Hint.AccountSwitchHint.show()) {
+>>> insert_before_line TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java
+>>> find
+items.add(SettingCell.Factory.of(8, IconBackgroundColors.CYAN.top
+>>> text
+        items.add(SettingCell.Factory.of(90, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.msg_calls, getString(R.string.VoipChatRecentCalls))); // unofficial client: iOS-style Recent Calls row
+>>> insert_before_line TMessagesProj/src/main/java/org/telegram/ui/SettingsActivity.java
+>>> find
+case 24: {
+                presentFragment(new RoundVideoSettingsActivity());
+>>> text
+            case 90: { // unofficial client: Recent Calls (the Calls tab is hidden)
+                Bundle myclientCallsArgs = new Bundle();
+                myclientCallsArgs.putBoolean("needFinishFragment", false);
+                presentFragment(new CallLogActivity(myclientCallsArgs));
+                break;
+            }
