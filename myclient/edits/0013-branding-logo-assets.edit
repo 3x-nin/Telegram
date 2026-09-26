@@ -1,0 +1,49 @@
+feat(branding): replace the remaining Telegram logo assets
+
+Telegram API ToS: an unofficial client must not use the official Telegram
+logo. These assets still showed the paper plane. All replacements are
+original artwork (the istylegraph speech bubble with three dots, brand
+color #5B3FD9) and are app-module overrides, so upstream files are not
+changed.
+
+- raw/plane_logo_plain.json (Lottie): QR screen logo (QrActivity) and
+  the round-video watermark (InstantCameraVideoEncoderOverlayHelper,
+  RoundVideoOverlayRenderer). 60 frames, because the callers read
+  frames up to 52 (watermark) and frame 33 (QR share image).
+- raw/qr_code_logo.json (Lottie): center of the QR bottom sheets and the
+  update-required screen (BlockingUpdateView).
+- raw/qr_logo.svg: center of generated QR codes (TelegramQRCodeWriter).
+- drawable-anydpi/logo_middle.xml: Terms of Service dialog
+  (TermsOfServiceView). The anydpi vector wins over the upstream
+  density PNGs.
+
+The watermark atlas uses only the alpha channel, so the bubble has real
+holes for the dots (even-odd fill) there.
+>>> create TMessagesProj_App/src/main/res/raw/plane_logo_plain.json
+>>> text
+{"v":"5.7.4","fr":60,"ip":0,"op":60,"w":512,"h":512,"nm":"myclient_logo","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"bubble","sr":1,"ks":{"o":{"a":0,"k":100},"r":{"a":0,"k":0},"p":{"a":0,"k":[256,256,0]},"a":{"a":0,"k":[256,256,0]},"s":{"a":0,"k":[100,100,100]}},"ao":0,"shapes":[{"ty":"gr","nm":"bubble","it":[{"ty":"sh","nm":"body","ks":{"a":0,"k":{"c":true,"v":[[256,68],[452,236],[256,404],[84,456],[118,352],[60,236]],"i":[[-108.25,0],[0,-92.79],[108.25,0],[50,-8],[0,0],[0,44]],"o":[[108.25,0],[0,92.79],[-60,0],[0,0],[-35,-31],[0,-92.79]]}}},{"ty":"el","nm":"dot1","d":3,"p":{"a":0,"k":[176,236]},"s":{"a":0,"k":[56,56]}},{"ty":"el","nm":"dot2","d":3,"p":{"a":0,"k":[256,236]},"s":{"a":0,"k":[56,56]}},{"ty":"el","nm":"dot3","d":3,"p":{"a":0,"k":[336,236]},"s":{"a":0,"k":[56,56]}},{"ty":"fl","nm":"fill","c":{"a":0,"k":[0.357,0.247,0.851,1]},"o":{"a":0,"k":100},"r":2},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100},"sk":{"a":0,"k":0},"sa":{"a":0,"k":0}}]}],"ip":0,"op":60,"st":0,"bm":0}]}
+>>> create TMessagesProj_App/src/main/res/raw/qr_code_logo.json
+>>> text
+{"v":"5.7.4","fr":60,"ip":0,"op":60,"w":512,"h":512,"nm":"myclient_logo","ddd":0,"assets":[],"layers":[{"ddd":0,"ind":1,"ty":4,"nm":"bubble","sr":1,"ks":{"o":{"a":0,"k":100},"r":{"a":0,"k":0},"p":{"a":0,"k":[256,256,0]},"a":{"a":0,"k":[256,256,0]},"s":{"a":0,"k":[100,100,100]}},"ao":0,"shapes":[{"ty":"gr","nm":"bubble","it":[{"ty":"sh","nm":"body","ks":{"a":0,"k":{"c":true,"v":[[256,68],[452,236],[256,404],[84,456],[118,352],[60,236]],"i":[[-108.25,0],[0,-92.79],[108.25,0],[50,-8],[0,0],[0,44]],"o":[[108.25,0],[0,92.79],[-60,0],[0,0],[-35,-31],[0,-92.79]]}}},{"ty":"el","nm":"dot1","d":3,"p":{"a":0,"k":[176,236]},"s":{"a":0,"k":[56,56]}},{"ty":"el","nm":"dot2","d":3,"p":{"a":0,"k":[256,236]},"s":{"a":0,"k":[56,56]}},{"ty":"el","nm":"dot3","d":3,"p":{"a":0,"k":[336,236]},"s":{"a":0,"k":[56,56]}},{"ty":"fl","nm":"fill","c":{"a":0,"k":[0.357,0.247,0.851,1]},"o":{"a":0,"k":100},"r":2},{"ty":"tr","p":{"a":0,"k":[0,0]},"a":{"a":0,"k":[0,0]},"s":{"a":0,"k":[100,100]},"r":{"a":0,"k":0},"o":{"a":0,"k":100},"sk":{"a":0,"k":0},"sa":{"a":0,"k":0}}]}],"ip":0,"op":60,"st":0,"bm":0}]}
+>>> create TMessagesProj_App/src/main/res/raw/qr_logo.svg
+>>> text
+<?xml version="1.0" encoding="UTF-8"?><svg width="150px" height="150px" viewBox="0 0 150 150" version="1.1" xmlns="http://www.w3.org/2000/svg"><circle fill="#5B3FD9" cx="75" cy="75" r="75" /><path d="M75,40 C96,40 113,54.33 113,72 C113,89.67 96,104 75,104 C63.5,104 52.5,112 43,114 L52.9,93.8 C43.5,88 37,80.5 37,72 C37,54.33 54,40 75,40 Z" fill="#FFFFFF" /><circle fill="#5B3FD9" cx="59" cy="72" r="5.5" /><circle fill="#5B3FD9" cx="75" cy="72" r="5.5" /><circle fill="#5B3FD9" cx="91" cy="72" r="5.5" /></svg>
+>>> create TMessagesProj_App/src/main/res/drawable-anydpi/logo_middle.xml
+>>> text
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): original istylegraph mark, replaces the Telegram logo on the Terms of Service dialog. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="68dp"
+    android:height="68dp"
+    android:viewportWidth="150"
+    android:viewportHeight="150">
+    <path
+        android:fillColor="#5B3FD9"
+        android:pathData="M75,0a75,75 0,1 1,0 150a75,75 0,1 1,0 -150z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M75,40 C96,40 113,54.33 113,72 C113,89.67 96,104 75,104 C63.5,104 52.5,112 43,114 L52.9,93.8 C43.5,88 37,80.5 37,72 C37,54.33 54,40 75,40 Z" />
+    <path
+        android:fillColor="#5B3FD9"
+        android:pathData="M59,72m-5.5,0a5.5,5.5 0,1 0,11 0a5.5,5.5 0,1 0,-11 0M75,72m-5.5,0a5.5,5.5 0,1 0,11 0a5.5,5.5 0,1 0,-11 0M91,72m-5.5,0a5.5,5.5 0,1 0,11 0a5.5,5.5 0,1 0,-11 0" />
+</vector>
