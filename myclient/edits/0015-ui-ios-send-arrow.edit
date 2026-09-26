@@ -1,0 +1,28 @@
+feat(ui): iOS-style send arrow
+
+DESIGN_SPEC section 4 (input panel). iOS shows a white up arrow on a
+filled accent circle. The new-design SendButton already draws a filled
+circle (chat_messagePanelSend) and tints the icon white, so only the
+glyph changes.
+
+- TMessagesProj_App/src/main/res/drawable/send_plane_24.xml: app-module
+  override of the upstream paper-plane glyph with a rounded up arrow.
+  All send buttons use it: chat input, share sheet, attach menu,
+  forward, gift message, rich editor, AI editor.
+>>> create TMessagesProj_App/src/main/res/drawable/send_plane_24.xml
+>>> text
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unofficial client (myclient): iOS-style send arrow, replaces the upstream paper-plane glyph. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M36,57L36,17M21,31L36,16L51,31"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="7" />
+</vector>
