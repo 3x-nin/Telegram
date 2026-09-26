@@ -4442,6 +4442,12 @@ public class LocaleController {
 
     @Nullable
     private String getStringV2(String key, @StringRes int stringRes, String fallback) {
+        // Unofficial client: the app name always comes from this build's resources,
+        // not from Telegram's server language packs or the bundled translations.
+        final String myclientOwnValue = org.telegram.myclient.MyClientStrings.forkOwned(key, stringRes);
+        if (myclientOwnValue != null) {
+            return myclientOwnValue;
+        }
         final Context context = ApplicationLoader.applicationContext;
         String value;
 

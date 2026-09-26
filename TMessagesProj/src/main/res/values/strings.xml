@@ -5,6 +5,9 @@
     <!-- Unofficial client (myclient) strings -->
     <string name="MyClientChatId">Chat ID</string>
     <string name="MyClientChatIdCopied">Chat ID copied to clipboard.</string>
+    <string name="MyClientVersion">istylegraph for Android %1$s</string>
+    <string name="MyClientDisclosure">Unofficial client based on the open-source Telegram Android app. Not affiliated with or endorsed by Telegram.</string>
+    <string name="MyClientIntroMessage">An unofficial messaging app that uses the Telegram API.\nNot affiliated with or endorsed by Telegram.</string>
     <string name="LanguageName">English</string>
     <string name="English">English</string>
     <string name="LanguageNameInEnglish">English</string>
