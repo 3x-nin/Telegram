@@ -1646,9 +1646,9 @@ public class Theme {
             if (isDark != UNKNOWN) {
                 return isDark == DARK;
             }
-            if ("Dark Blue".equals(name) || "Night".equals(name)) {
+            if ("Dark Blue".equals(name) || "Night".equals(name) || "iOS Night".equals(name)) {
                 isDark = DARK;
-            } else if ("Blue".equals(name) || "Arctic Blue".equals(name) || "Day".equals(name)) {
+            } else if ("Blue".equals(name) || "Arctic Blue".equals(name) || "Day".equals(name) || "iOS Day".equals(name)) {
                 isDark = LIGHT;
             }
             if (isDark == UNKNOWN) {
@@ -4009,6 +4009,29 @@ public class Theme {
         sortAccents(themeInfo);
         themes.add(themeInfo);
         themesDict.put("Night", themeInfo);
+
+        // Unofficial client (myclient): iOS-style palettes (DESIGN_SPEC.md section 1). They are the
+        // defaults on first launch; saved theme choices are kept. Assets: ios_day.attheme and
+        // ios_night.attheme (upstream Blue and Night palettes with the iOS values appended).
+        themeInfo = new ThemeInfo();
+        themeInfo.name = "iOS Day";
+        themeInfo.assetName = "ios_day.attheme";
+        themeInfo.previewBackgroundColor = 0xffa2d7f5;
+        themeInfo.previewInColor = 0xffffffff;
+        themeInfo.previewOutColor = 0xffe1ffc7;
+        themeInfo.sortIndex = 6;
+        themes.add(currentDayTheme = defaultTheme = themeInfo);
+        themesDict.put("iOS Day", themeInfo);
+
+        themeInfo = new ThemeInfo();
+        themeInfo.name = "iOS Night";
+        themeInfo.assetName = "ios_night.attheme";
+        themeInfo.previewBackgroundColor = 0xff000000;
+        themeInfo.previewInColor = 0xff1d1d1d;
+        themeInfo.previewOutColor = 0xff61bcf9;
+        themeInfo.sortIndex = 7;
+        themes.add(themeInfo);
+        themesDict.put("iOS Night", currentNightTheme = themeInfo);
 
         String themesString = themeConfig.getString("themes2", null);
 
