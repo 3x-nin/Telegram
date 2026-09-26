@@ -657,6 +657,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
     private int userInfoRow;
     private int channelInfoRow;
     private int usernameRow;
+    private int idRow; // unofficial client: Chat ID row
     private int notificationsDividerRow;
     private int notificationsRow;
     private int bizHoursRow;
@@ -4323,6 +4324,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         frameLayout.addView(listView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.TOP | Gravity.LEFT));
         listView.setOnItemClickListener((view, position, x, y) -> {
             if (getParentActivity() == null) {
+                return;
+            }
+            if (position == idRow) {
+                org.telegram.myclient.ChatIdHelper.copy(ProfileActivity.this, org.telegram.myclient.ChatIdHelper.format(userId, chatId, currentChat));
                 return;
             }
             listView.stopScroll();
@@ -10521,6 +10526,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         locationRow = -1;
         channelInfoRow = -1;
         usernameRow = -1;
+        idRow = -1;
         settingsTimerRow = -1;
         settingsKeyRow = -1;
         notificationsDividerRow = -1;
@@ -10727,6 +10733,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         noteRow = rowCount++;
                     }
                 }
+                idRow = rowCount++;
                 if (actionsView == null && userId != getUserConfig().getClientUserId()) {
                     notificationsRow = rowCount++;
                 }
@@ -10840,6 +10847,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (actionsView == null) {
                 notificationsSimpleRow = rowCount++;
             }
+            idRow = rowCount++;
             if (infoHeaderRowEmpty != -1) {
 //                infoEndRowEmpty = rowCount++;
             }
@@ -10885,6 +10893,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 notificationsRow = rowCount++;
             }
+            idRow = rowCount++;
             if (rowCount > 0) {
                 infoSectionRow = rowCount++;
             }
@@ -13643,6 +13652,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                         detailCell.setImage(null);
                         detailCell.setImageClickListener(null);
                     }
+                    if (position == idRow) {
+                        detailCell.setTextAndValue(org.telegram.myclient.ChatIdHelper.format(userId, chatId, currentChat), LocaleController.getString(R.string.MyClientChatId), false);
+                    }
                     detailCell.setTag(position);
                     detailCell.textView.setLoading(loadingSpan);
                     detailCell.valueTextView.setLoading(loadingSpan);
@@ -14314,7 +14326,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (position == infoHeaderRow || position == membersHeaderRow || position == settingsSectionRow2 ||
                     position == numberSectionRow || position == helpHeaderRow || position == debugHeaderRow || position == botPermissionsHeader) {
                 return VIEW_TYPE_HEADER;
-            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow) {
+            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow || position == idRow) {
                 return VIEW_TYPE_TEXT_DETAIL;
             } else if (position == usernameRow || position == setUsernameRow) {
                 return VIEW_TYPE_TEXT_DETAIL_MULTILINE;
@@ -15718,6 +15730,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             put(++pointer, userInfoRow, sparseIntArray);
             put(++pointer, channelInfoRow, sparseIntArray);
             put(++pointer, usernameRow, sparseIntArray);
+            put(++pointer, idRow, sparseIntArray);
             put(++pointer, notificationsDividerRow, sparseIntArray);
             put(++pointer, reportDividerRow, sparseIntArray);
             put(++pointer, notificationsRow, sparseIntArray);

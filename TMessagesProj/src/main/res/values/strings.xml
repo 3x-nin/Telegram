@@ -2,6 +2,9 @@
 <resources>
     <string name="AppName">Telegram</string>
     <string name="AppNameBeta">Telegram Beta</string>
+    <!-- Unofficial client (myclient) strings -->
+    <string name="MyClientChatId">Chat ID</string>
+    <string name="MyClientChatIdCopied">Chat ID copied to clipboard.</string>
     <string name="LanguageName">English</string>
     <string name="English">English</string>
     <string name="LanguageNameInEnglish">English</string>
