@@ -10,7 +10,7 @@ The app uses the real Telegram servers and protocol. tgnet, MTProto and encrypti
 |---|---|
 | 0. Setup and branding | Done. |
 | 1. iOS analysis | Done: `DESIGN_SPEC.md`. |
-| 2. iOS-style reskin | Partly done: palettes, bubble radii, tab order, push/pop motion, nav title size. See "Not matched". |
+| 2. iOS-style reskin | Partly done: palettes, bubble radii, tab order, push/pop motion, nav title size, send arrow. See "Not matched". |
 | 3. Chat ID | Done. Needs a device check. |
 | 4. Build, ToS pass, this file | CI builds pass (see below). ToS pass below. |
 
@@ -23,8 +23,9 @@ Each build checks out the branch head, so a build also covers the commits before
 | [36228232057](https://github.com/3x-nin/Telegram/actions/runs/36228232057) | Step 0 build and fork switches, Chat ID | Pass |
 | [36240175849](https://github.com/3x-nin/Telegram/actions/runs/36240175849) | Branding (package, icons, wordmark, disclosure) | Pass |
 | [36240337579](https://github.com/3x-nin/Telegram/actions/runs/36240337579) | Bubble corner radii | Pass |
-| [36241956456](https://github.com/3x-nin/Telegram/actions/runs/36241956456) | iOS palettes, tab order | See the run |
-| Next run after 245687a | Push/pop motion, nav titles, logo assets | See the Actions tab |
+| [36241956456](https://github.com/3x-nin/Telegram/actions/runs/36241956456) | iOS palettes, tab order | Pass |
+| [36242521149](https://github.com/3x-nin/Telegram/actions/runs/36242521149) | Push/pop motion, nav titles, logo assets | Pass |
+| [36249100386](https://github.com/3x-nin/Telegram/actions/runs/36249100386) | Calls-tab options, send arrow | See the run |
 
 The APK is attached to each run as the artifact `myclient-debug-arm64`. It has no api_id, so it cannot log in. Build your own with your credentials (below).
 
@@ -57,6 +58,8 @@ Fork code is marked "Unofficial client (myclient)". New Java code is in `org.tel
 | 8a99b7c | `ui/MainTabsActivity.java`, `ui/SettingsActivity.java` | Tabs: Contacts, Chats, Settings. "Recent Calls" row in Settings. |
 | a30332d | `ui/Components/CubicBezierInterpolator.java`, `ui/ActionBar/ActionBarLayout.java`, `ui/ActionBar/ActionBar.java` | Full-width push/pop slide with the iOS curve, 17sp nav titles. |
 | 245687a | `TMessagesProj_App/src/main/res/raw/plane_logo_plain.json`, `raw/qr_code_logo.json`, `raw/qr_logo.svg`, `drawable-anydpi/logo_middle.xml` | Original art for the QR logos, round-video watermark and Terms of Service dialog. |
+| c9abe32 | `ui/MainTabsActivity.java`, `ui/CallLogActivity.java` | The call list no longer offers to show or hide the Calls tab. |
+| 186d00b | `TMessagesProj_App/src/main/res/drawable/send_plane_24.xml` | iOS-style up arrow on all send buttons. |
 
 Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 
@@ -65,6 +68,7 @@ Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 - Themes: two new built-in themes ("iOS Day", "iOS Night") instead of changes to the upstream themes. They are copies of the upstream Blue and Night palettes with the iOS values appended, so keys that iOS does not define keep working values. They have no accent options. Saved theme choices are kept.
 - Tabs: iOS order Contacts, Chats, Settings, with Chats selected at start. The Calls and Profile tabs are hidden, not deleted, so upstream code around them keeps working. `MYCLIENT_IOS_TABS` in `MainTabsActivity` restores the upstream layout.
 - Motion: only the standard push/pop changed. Swipe-back already moves the full screen. Preview (long-press) animations are unchanged.
+- Send button: only the glyph changed. The new-design send button already draws a filled accent circle with a white icon, as on iOS.
 - Large titles: not used, because iOS Telegram turns them off (`NavigationController.swift:1505`).
 
 ## Telegram API ToS pass (core.telegram.org/api/terms)
@@ -73,24 +77,23 @@ Java paths without a prefix are in `TMessagesProj/src/main/java/org/telegram/`.
 |---|---|
 | Own api_id and api_hash | Read from `local.properties` or environment. None are committed. Upstream values removed. |
 | No "Telegram" in the app title | Title is "istylegraph". The disclosure says the app is unofficial. |
-| No official logo | Launcher icons, notification icon, splash, intro texture, wordmarks, QR logos, round-video watermark and the Terms of Service logo are replaced with original art. |
+| No official logo | Launcher icons, notification icon, splash, intro texture, wordmarks, QR logos, round-video watermark, the Terms of Service logo and the send glyph are replaced with original art. |
 | Tell users the app is unofficial | Text under the version in Settings. Intro page 1 also says it. |
 | Security | No change to tgnet, MTProto or encryption. |
 
-Open ToS points:
+Open ToS point:
 
 - The package id `com.itelegram.unofficial` contains "telegram". It is not the title, but app stores can reject it. Consider a package id without "telegram" before you publish.
-- The send button still uses the upstream paper-plane glyph. It is a send icon, not the logo, but iOS uses an arrow.
 
 ## Not matched to iOS (flagged, not guessed)
 
 1. Chat background: the iOS pattern wallpaper is not reproduced. Day uses a #A2D7F5 to #ABC8E0 gradient (the gradient end comes from the upstream Blue theme). Night uses solid black.
 2. iOS Night uses white as the accent. Android draws white text on accent buttons in many places, so iOS Night keeps the Android Night accent for buttons and links.
 3. In iOS Night, chat list rows are black and settings cells are #1C1C1D. Android uses one color key for both, so both are #1C1C1D.
-4. Tabs: iOS can show an optional Calls tab. Here, Calls is not a tab. Recent calls open from Settings and from the Contacts tab menu. The "show calls tab" option has no effect.
+4. Tabs: iOS can show an optional Calls tab. Here, Calls is not a tab. Recent calls open from Settings and from the Contacts tab menu.
 5. Tabs: the Profile tab and its long-press account switcher are gone. Accounts are listed in Settings.
 6. Push/pop duration is 350 ms, the UIKit default. The value was not found in the iOS code (DESIGN_SPEC gap). The iOS parallax shift and dimming of the screen below are not added.
-7. Nav titles are 17sp but stay left-aligned. iOS centers them. `ActionBar.centerTitle()` exists but is not turned on for all screens, because of layout risk with menus and subtitles.
+7. Nav titles are 17sp but stay left-aligned. iOS centers them. `ActionBar.centerTitle()` only changes the text gravity and the layout code has no centered mode, so it is not turned on.
 8. Sheet corner radius (iOS 10, glass 38) is not changed. Most sheets use the 9-patch `sheet_shadow_round`.
 9. DESIGN_SPEC gaps, not changed: bubble tail shape, reply bar, timestamp weight, input field metrics, row heights, nav bar height, tab icon sizes, list corner radius.
 10. `ChatActivity.java`, `Cells/ChatMessageCell.java` and `PhotoViewer.java` could not be read with the tools used, so there are no chat-screen or media-viewer layout changes.
@@ -104,6 +107,7 @@ The CI build compiles the code but does not run it. Check these on a device:
 - Chat ID: correct values for a user, a basic group (`-id`), a supergroup and a channel (`-100...`). Tap copies the value.
 - Launcher icons (default and alternate), notification icon, splash, intro animation, wordmark in the chat list header.
 - Themes: first launch uses iOS Day, and night mode uses iOS Night. Check action bar icons, folder tabs, the search field and the chat input on both.
-- Tabs: Contacts, Chats, Settings. Swipe between pages. Back returns to Chats. "Recent Calls" in Settings opens the call list.
+- Tabs: Contacts, Chats, Settings. Swipe between pages. Back returns to Chats. "Recent Calls" in Settings opens the call list, and the call list shows no calls-tab options.
 - Push/pop: full-width slide. Look for screens with a transparent background.
+- Send buttons: the arrow is centered in the circle (the old plane glyph may have had an optical offset).
 - QR screens, QR bottom sheets, round-video watermark, Terms of Service dialog, update-required screen.
